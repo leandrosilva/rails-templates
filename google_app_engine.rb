@@ -15,10 +15,12 @@ inside('lib') do
   
   # A LITTLE TRICK TO GET ALL THE MANDATORY JARS FASTER
   run 'git clone git://github.com/olabini/yarbl.git'
-  run 'cp yarbl/lib/*.jar . && rm -rf yarbl'
+  run 'cp yarbl/lib/*.jar . && cp yarbl/lib/big_table_servlet_store.rb . && rm -rf yarbl'
   
   run 'git clone git://github.com/olabini/bumble.git'
   run 'git clone git://github.com/olabini/beeu.git'
+  
+  run 'rm -rf */.git'
   
   # GET THE DEVELOPMENT VERSION OF JRUBY
   # run 'git clone git://github.com/jruby/jruby.git'
@@ -50,11 +52,13 @@ inside('lib') do
   
 end
 
+APPNAME = root.split('/').last
+
 file 'appengine-web.xml',
 %Q{<?xml version="1.0" encoding="utf-8"?>
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
-  <application>#{root.split('/').last}</application>
-  <version>2</version>
+  <application>#{APPNAME}</application>
+  <version>1</version>
   <static-files />
   <resource-files />
   <sessions-enabled>true</sessions-enabled>
@@ -71,13 +75,13 @@ file 'appengine-web.xml',
     <property name="jruby.compile.chainsize" value="500"/>
     <property name="jruby.compile.lazyHandles" value="false"/>
     <property name="jruby.compile.peephole" value="true"/>
- </system-properties>
+  </system-properties>
 </appengine-web-app>
 }
 
 file 'datastore-indexes.xml',
 %q{<?xml version="1.0" encoding="utf-8"?>
-  <datastore-indexes autoGenerate="true">
+<datastore-indexes autoGenerate="true">
 </datastore-indexes>
 }
 
@@ -141,7 +145,7 @@ file 'config/environment.rb',
     # Make sure the secret is at least 30 characters and all random, 
     # no regular words or you'll be exposed to dictionary attacks.
     config.action_controller.session = {
-      :session_key => '_yarbl_session',
+      :session_key => "_#{APPNAME}_session",
       :secret      => 'a8071c8e98c4862f8a801525f39fd5167680258a4415a9a68afab2ab98c445c1dd4abc66e3bb2089365434d54234aef7feb62b78a08c2f749e0ed6aeea369af7'
     }
 
@@ -244,8 +248,7 @@ Warbler::Config.new do |config|
   config.webxml.jruby.min.runtimes = 1
   config.webxml.jruby.max.runtimes = 2
   config.webxml.jruby.init.serial = true
-#  config.webxml.jruby.runtime.initializer.threads = 1
-  # config.webxml.jruby.max.runtimes = 4
+  # config.webxml.jruby.runtime.initializer.threads = 1
 
   # JNDI data source name
   # config.webxml.jndi = 'jdbc/rails'
