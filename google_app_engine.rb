@@ -1,18 +1,17 @@
-#Google App Engine template
+# Google App Engine template
 
 run 'jruby -S gem install warbler' if yes?('Install warbler gem?')
-
 run 'jruby -S warble pluginize'
 run 'jruby -S warble config'
 
-freeze! 'RELEASE=2.3.2'
+rake 'rails:freeze:gems', :release => '2.3.2'
+
 run 'rm -rf vendor/rails/activerecord'
 %w(actionmailer actionpack activeresource activesupport railties).each do |gem|
   run %Q{rm -rf vendor/rails/#{gem}/test}
 end
 
 inside('lib') do
-  
   # A LITTLE TRICK TO GET ALL THE MANDATORY JARS FASTER
   run 'git clone git://github.com/olabini/yarbl.git'
   run 'cp yarbl/lib/*.jar . && cp yarbl/lib/big_table_servlet_store.rb . && rm -rf yarbl'
@@ -49,7 +48,6 @@ inside('lib') do
   # GET THE DEVELOPMENT VERSION OF JRUBY-RACK
   #run 'git clone git://github.com/nicksieger/jruby-rack.git'
   #run %q{cd jruby-rack && mvn package && mv target/jruby-rack-*.jar ../ && cd .. && rm -rf jruby-rack}
-  
 end
 
 APPNAME = root.split('/').last
@@ -86,7 +84,7 @@ file 'datastore-indexes.xml',
 }
 
 file 'config/environment.rb',
-%q{# Be sure to restart your server when you modify this file
+%Q{# Be sure to restart your server when you modify this file
 
   # Uncomment below to force Rails into production mode when
   # you don't control web/app server and can't set it the proper way
